@@ -6,7 +6,7 @@
 include { ADD_INFO_TO_VCF                                     } from '../../../modules/local/add_info_to_vcf/main'
 include { TABIX_BGZIPTABIX as TABIX_EXT_VCF                   } from '../../../modules/nf-core/tabix/bgziptabix/main'
 include { BCFTOOLS_NORM    as GERMLINE_VCFS_NORM              } from '../../../modules/nf-core/bcftools/norm/main'
-include { TABIX_TABIX      as TABIX_NORMALISE                 } from '../../../modules/nf-core/tabix/tabix/main'
+include { TABIX_BGZIPTABIX      as TABIX_NORMALISE                 } from '../../../modules/nf-core/tabix/bgziptabix/main'
 include { BCFTOOLS_CONCAT  as GERMLINE_VCFS_CONCAT            } from '../../../modules/nf-core/bcftools/concat/main'
 include { BCFTOOLS_SORT    as GERMLINE_VCFS_CONCAT_SORT       } from '../../../modules/nf-core/bcftools/sort/main'
 include { TABIX_TABIX      as TABIX_GERMLINE_VCFS_CONCAT_SORT } from '../../../modules/nf-core/tabix/tabix/main'
@@ -31,16 +31,15 @@ workflow CONCATENATE_GERMLINE_VCFS {
     TABIX_NORMALISE(GERMLINE_VCFS_NORM.out.vcf)
 
     // Gather vcfs and vcf-tbis for concatenating germline-vcfs
-    germline_vcfs_with_tbis = GERMLINE_VCFS_NORM.out.vcf
-                                    .join(TABIX_NORMALISE.out.tbi,failOnDuplicate:true, failOnMismatch:true)
-                                    .map{ meta, vcf, tbi -> [ meta.subMap('id'), vcf, tbi ] }.groupTuple()
+    germline_vcfs_with_tbis = TABIX_NORMALISE.out.gz_tbi.map{ meta, vcf, tbi -> [ meta.subMap('id'), vcf, tbi ] }.groupTuple()
+
 
     GERMLINE_VCFS_CONCAT(germline_vcfs_with_tbis)
     GERMLINE_VCFS_CONCAT_SORT(GERMLINE_VCFS_CONCAT.out.vcf)
     TABIX_GERMLINE_VCFS_CONCAT_SORT(GERMLINE_VCFS_CONCAT_SORT.out.vcf)
 
     all_germline_vcfs_with_tbis = GERMLINE_VCFS_CONCAT_SORT.out.vcf
-                                        .join(TABIX_GERMLINE_VCFS_CONCAT_SORT.out.tbi, failOnDuplicate: true, failOnMismatch: true)
+                                            .join(TABIX_GERMLINE_VCFS_CONCAT_SORT.out.tbi, failOnDuplicate: true, failOnMismatch: true)
 
     // Gather versions of all tools used
     versions = versions.mix(ADD_INFO_TO_VCF.out.versions)
