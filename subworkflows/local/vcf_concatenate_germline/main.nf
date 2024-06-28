@@ -32,7 +32,7 @@ workflow CONCATENATE_GERMLINE_VCFS {
 
     // Gather vcfs and vcf-tbis for concatenating germline-vcfs
     germline_vcfs_with_tbis = GERMLINE_VCFS_NORM.out.vcf
-                                    .join(TABIX_NORMALISE.out.tbi,failOnDuplicate:true, failOnMismatch:true)
+                                    .join(TABIX_NORMALISE.out.tbi)
                                     .map{ meta, vcf, tbi -> [ meta.subMap('id'), vcf, tbi ] }.groupTuple()
 
     GERMLINE_VCFS_CONCAT(germline_vcfs_with_tbis)
