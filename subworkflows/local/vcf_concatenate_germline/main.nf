@@ -46,7 +46,7 @@ workflow CONCATENATE_GERMLINE_VCFS {
     versions = versions.mix(ADD_INFO_TO_VCF.out.versions)
     versions = versions.mix(TABIX_EXT_VCF.out.versions)
     versions = versions.mix(GERMLINE_VCFS_NORM.out.versions)
-    versions = versions.mix(GERMLINE_VCFS_NORM.out.versions)
+    versions = versions.mix(TABIX_NORMALISE.out.versions)
     versions = versions.mix(GERMLINE_VCFS_CONCAT.out.versions)
     versions = versions.mix(GERMLINE_VCFS_CONCAT_SORT.out.versions)
     versions = versions.mix(TABIX_GERMLINE_VCFS_CONCAT_SORT.out.versions)
