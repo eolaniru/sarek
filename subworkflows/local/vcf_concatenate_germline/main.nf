@@ -33,15 +33,18 @@ workflow CONCATENATE_GERMLINE_VCFS {
     // Gather vcfs and vcf-tbis for concatenating germline-vcfs
     germline_vcfs_with_tbis = GERMLINE_VCFS_NORM.out.vcf
                                     .join(TABIX_NORMALISE.out.tbi)
-                                    .map{ meta, vcf, tbi -> [ [id:meta.id], vcf, tbi ] }.groupTuple(by:1)
+                                    .map{ meta, vcf, tbi -> [  meta.subMap('id'), vcf, tbi] }
+                                    .groupTuple()
+
+
 
 
     GERMLINE_VCFS_CONCAT(germline_vcfs_with_tbis)
     GERMLINE_VCFS_CONCAT_SORT(GERMLINE_VCFS_CONCAT.out.vcf)
     TABIX_GERMLINE_VCFS_CONCAT_SORT(GERMLINE_VCFS_CONCAT_SORT.out.vcf)
 
-    all_germline_vcfs_with_tbis = GERMLINE_VCFS_CONCAT_SORT.out.vcf
-                                    .join(TABIX_GERMLINE_VCFS_CONCAT_SORT.out.tbi, failOnDuplicate: true, failOnMismatch: true)
+    //all_germline_vcfs_with_tbis = GERMLINE_VCFS_CONCAT_SORT.out.vcf
+                                    //.join(TABIX_GERMLINE_VCFS_CONCAT_SORT.out.tbi, failOnDuplicate: true, failOnMismatch: true)
 
     // Gather versions of all tools used
     versions = versions.mix(ADD_INFO_TO_VCF.out.versions)
@@ -53,7 +56,7 @@ workflow CONCATENATE_GERMLINE_VCFS {
     versions = versions.mix(TABIX_GERMLINE_VCFS_CONCAT_SORT.out.versions)
 
     emit:
-    vcfs = all_germline_vcfs_with_tbis // post processed vcfs
+    vcfs //= all_germline_vcfs_with_tbis // post processed vcfs
 
     versions // channel: [ versions.yml ]
 }
