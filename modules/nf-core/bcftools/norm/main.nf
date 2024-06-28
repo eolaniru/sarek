@@ -8,7 +8,7 @@ process BCFTOOLS_NORM {
         'biocontainers/bcftools:1.20--h8b25389_0' }"
 
     input:
-    tuple val(meta), path(vcf), path(tbi)
+    tuple val(meta), path('*.vcf'), path('*.tbi')
     tuple val(meta2), path(fasta)
 
     output:
